@@ -51,8 +51,12 @@ class Model(object):
             float -- Speed of motor1 (m/s), speech of motor2 (m/s)
         """
         # TODO
-        m1_speed = 0
-        m2_speed = 0
+        dista = linear_speed + (self.l*rotational_speed)/2
+        distb = linear_speed - (self.l*rotational_speed)/2
+
+
+        m1_speed = dista
+        m2_speed = distb
         return m1_speed, m2_speed
 
     def dk(self, m1_speed=None, m2_speed=None):
@@ -67,9 +71,19 @@ class Model(object):
             float -- linear speed (m/s), rotational speed (rad/s)
         """
         # TODO
-        linear_speed = (self.m1.speed + self.m2.speed)/2
-        rotation_speed = (self.m1.speed - self.m2.speed)/self.l
+        if m1_speed is None:
+            m1_speed = self.m1.speed
+        if m2_speed is None:
+            m2_speed = self.m2.speed
+
+        distp = (m1_speed + m2_speed)/2
+        disttheta = (m1_speed - m2_speed)/self.l
+
+        linear_speed = distp
+        rotation_speed = disttheta
+
         return linear_speed, rotation_speed
+      
 
     def update(self, dt):
         """Given the current state of the robot (speeds of the wheels) and a time step (dt), 
@@ -82,13 +96,14 @@ class Model(object):
         # Going from wheel speeds to robot speed
         linear_speed, rotation_speed = self.dk()
 
-        dx - linear_speed * dt 
-        dtetha = rotation_speed * dt
+        distx = dt * linear_speed * math.cos(self.theta + rotation_speed)
+        disty = dt * linear_speed * math.sin(self.theta + rotation_speed)
+        theta = dt * rotation_speed
 
         # TODO
 
         # Updating the robot position
-        self.x = self.x + dx  # TODO
-        self.y = self.y + 0  # TODO
-        self.theta = self.theta + dtetha  # TODO
+        self.x = self.x + distx  # TODO
+        self.y = self.y + disty  # TODO
+        self.theta = self.theta + theta  # TODO
 
