@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import random, math, pygame
+import random
+import math
+import pygame
 import pygame.draw
 from pygame.locals import *
 import sys
@@ -14,6 +16,7 @@ from constants import *
 
 class SimpleRobotControl:
     def __init__(self):
+
         self.control_modes = [XY_GOAL, WHEEL_CONTROL]
         self.control_mode_id = 0
         self.m = model.Model()
@@ -254,29 +257,62 @@ class SimpleRobotControl:
         distance = math.sqrt(
             (m.x_goal - m.x) * (m.x_goal - m.x) + (m.y_goal - m.y) * (m.y_goal - m.y)
         )
-        # TODO
 
         if distance < XY_TOL:
             m.m1.speed = 0
             m.m2.speed = 0
             return
+        # Fixing asserv's mistakes
+        angle_mistake = self.angle_diff(m.theta_goal, m.theta)
+        # somme_angle = 1
+        x_speed_mistake = m.x_goal - m.x
+        y_speed_mistake = m.y_goal - m.y
+        if not (x_speed_mistake == 0 and y_speed_mistake == 0):
+            m.theta_goal = -2 * math.atan(
+                y_speed_mistake
+                / (
+                    x_speed_mistake
+                    + math.sqrt(
+                        x_speed_mistake * x_speed_mistake
+                        + y_speed_mistake * y_speed_mistake
+                    )
+                )
+            )
 
+        theta_angle_mistake = self.angle_diff(m.theta_goal, m.theta)
 
-        x = m.x_goal - m.x
-        y = m.y_goal - m.y
+        action = TURN_P * theta_angle_mistake
+        local_turn = action + m.acc
 
-        angle_goal = 2*math.atan(y/(math.sqrt(x * x + y * y) + x))
-        diff_angle = self.angle_diff(angle_goal, m.theta)
-       
-        local_turn = diff_angle/distance
+        local_speed = 0
 
-        m.m1.speed, m.m2.speed = m.ik(distance, local_turn)
+        action = SPEED_P * distance
+        local_speed = action + m.speed_acc
+        #
+        # x_somme_mistake = x_speed_mistake
+        # y_somme_mistake = y_speed_mistake
+        # theta_somme_mistake = theta_angle_mistake
+        #
+        # x_controle_speed = KXP * x_speed_mistake
+        # y_controle_speed = KYP * y_speed_mistake
+        # theta_controle = TURN_P * theta_angle_mistake
+        #
+        # x_previous_mistake = x_speed_mistake
+        # y_previous_mistake = y_speed_mistake
+        # theta_previous_mistake = theta_angle_mistake
+        #
+        # local_speed = SPEED_P * distance + m.speed_acc
+        # local_turn = theta_controle + m.acc
+
+        m1_speed, m2_speed = m.ik(local_speed, local_turn)
+        m.m1.speed = m1_speed
+        m.m2.speed = m2_speed
 
     def angle_diff(self, a, b):
         """Returns the smallest distance between 2 angles
         """
-        # TODO
-        d = math.atan2(math.sin(a-b), math.cos(a-b))
+        # test the smallest angles between the two angles parameters
+        d = (((a + b) + math.pi) % (2 * math.pi)) - math.pi
         return d
 
 
