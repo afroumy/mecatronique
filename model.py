@@ -96,11 +96,15 @@ class Model(object):
         # Going from wheel speeds to robot speed
         linear_speed, rotation_speed = self.dk()
 
-        distx = dt * linear_speed * math.cos(self.theta + rotation_speed)
-        disty = dt * linear_speed * math.sin(self.theta + rotation_speed)
         dtheta = dt * rotation_speed
 
-        # TODO
+        y = dt * linear_speed * math.sin(self.theta)
+        x = dt * linear_speed * math.cos(self.theta)
+
+        distx = x * math.cos(dtheta) - y * math.sin(dtheta)
+        disty = x * math.sin(dtheta) + y * math.cos(dtheta)
+
+
 
         # Updating the robot position
         self.x = self.x + distx  # TODO
