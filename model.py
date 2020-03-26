@@ -34,7 +34,7 @@ class Model(object):
         s = "current : {} {} {}".format(self.x, self.y, self.theta)
         s = s + "\ngoal    : {} {} {}".format(self.x_goal, self.y_goal, self.theta_goal)
         s = s + "\nmotors    : {} {}".format(self.m1, self.m2)
-        s = s + "acc={}, speed_acc={}, mode={}".format(
+        s = s + "\nacc={}, speed_acc={}, mode={}".format(
             self.acc, self.speed_acc, self.mode
         )
         return s
