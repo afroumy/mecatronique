@@ -98,12 +98,12 @@ class Model(object):
 
         distx = dt * linear_speed * math.cos(self.theta + rotation_speed)
         disty = dt * linear_speed * math.sin(self.theta + rotation_speed)
-        theta = dt * rotation_speed
+        dtheta = dt * rotation_speed
 
         # TODO
 
         # Updating the robot position
         self.x = self.x + distx  # TODO
         self.y = self.y + disty  # TODO
-        self.theta = self.theta + theta  # TODO
+        self.theta = self.theta + dtheta  # TODO
 
